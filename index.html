@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Ishwari Gaikwad — Portfolio</title>
-<meta name="description" content="Ishwari Gaikwad — Computer Science student interested in Data Science, Machine Learning, and Software Development." />
+<meta name="description" content="Ishwari Gaikwad — Computer Science student interested in Data Science and Software Development." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -25,7 +25,6 @@
 
 <style>
 :root{
-  /* Dusk / golden-hour palette */
   --bg:        #120e1c;
   --panel:     rgba(30,24,41,.72);
   --panel-2:   rgba(38,32,52,.85);
@@ -37,27 +36,23 @@
   --keyword:   #f193ae;   /* rose */
   --number:    #c9a5ff;   /* lilac */
   --radius: 16px;
+  --nav-h: 62px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html,body{height:100%}
 body{
   background:var(--bg);
   color:var(--text);
   font-family:"IBM Plex Sans",system-ui,sans-serif;
   line-height:1.65;
   -webkit-font-smoothing:antialiased;
-  overflow-x:hidden;
+  overflow:hidden;   /* paged experience — no body scroll */
 }
 ::selection{background:var(--func);color:#170f08}
 
 /* ---------- 3D graph-network background ---------- */
-#net{
-  position:fixed;inset:0;z-index:-2;display:block;
-}
-.glow-orb{
-  position:fixed;z-index:-1;border-radius:50%;
-  filter:blur(110px);opacity:.35;pointer-events:none;
-}
+#net{position:fixed;inset:0;z-index:0;display:block}
+.glow-orb{position:fixed;z-index:0;border-radius:50%;filter:blur(110px);opacity:.35;pointer-events:none}
 .orb-1{width:480px;height:480px;background:#6a3b8f;top:-140px;left:-140px}
 .orb-2{width:420px;height:420px;background:#8f5a2b;bottom:-120px;right:-120px}
 
@@ -65,31 +60,90 @@ body{
 
 /* ---------- Nav ---------- */
 nav{
-  position:sticky;top:0;z-index:50;
+  position:fixed;top:0;left:0;right:0;z-index:60;
   background:rgba(18,14,28,.72);
   backdrop-filter:blur(14px);
   border-bottom:1px solid rgba(59,49,83,.6);
 }
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:62px}
-.logo{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--text);text-decoration:none;font-size:.95rem}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:var(--nav-h)}
+.logo{font-family:"IBM Plex Mono",monospace;font-weight:500;color:var(--text);text-decoration:none;font-size:.95rem;cursor:pointer}
 .logo span{color:var(--string)}
 .nav-links{display:flex;gap:22px}
-.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s,text-shadow .2s}
-.nav-links a:hover,.nav-links a:focus-visible{color:var(--func);text-shadow:0 0 14px rgba(242,178,99,.7)}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:.9rem;transition:color .2s,text-shadow .2s;cursor:pointer}
+.nav-links a:hover,.nav-links a:focus-visible,.nav-links a.current{color:var(--func);text-shadow:0 0 14px rgba(242,178,99,.7)}
 a:focus-visible{outline:2px solid var(--func);outline-offset:3px;border-radius:4px}
 
-/* ---------- Hero: floating 3D terminal ---------- */
-header{padding:84px 0 64px;perspective:1200px}
+/* ---------- 3D page stage ---------- */
+.stage{
+  position:fixed;inset:0;z-index:10;
+  perspective:1400px;
+  perspective-origin:50% 45%;
+}
+.page{
+  position:absolute;inset:0;
+  padding-top:var(--nav-h);
+  opacity:0;pointer-events:none;
+  transform:rotateY(70deg) translateX(38%) translateZ(-260px) scale(.86);
+  transform-origin:50% 50%;
+  transition:transform .85s cubic-bezier(.22,.85,.3,1),opacity .6s ease;
+  backface-visibility:hidden;
+  will-change:transform,opacity;
+}
+.page.behind{transform:rotateY(-70deg) translateX(-38%) translateZ(-260px) scale(.86)}
+.page.active{opacity:1;pointer-events:auto;transform:none;z-index:11}
+.page-scroll{
+  height:100%;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+  padding:44px 0 90px;
+}
+.page-scroll::-webkit-scrollbar{width:8px}
+.page-scroll::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+/* Center hero page vertically */
+.page-center .page-scroll{display:flex;align-items:center;justify-content:center;padding:20px 0 70px}
+
+/* ---------- Page dots (right side) ---------- */
+.dots{
+  position:fixed;right:18px;top:50%;transform:translateY(-50%);
+  z-index:60;display:flex;flex-direction:column;gap:12px;
+}
+.pdot{
+  width:11px;height:11px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(30,24,41,.7);
+  cursor:pointer;transition:background .25s,box-shadow .25s,transform .25s;
+}
+.pdot:hover{transform:scale(1.25)}
+.pdot.on{background:var(--func);box-shadow:0 0 14px rgba(242,178,99,.8)}
+
+/* ---------- Prev / Next arrows ---------- */
+.pager{
+  position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+  z-index:60;display:flex;align-items:center;gap:16px;
+  font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--muted);
+}
+.arrow{
+  width:42px;height:42px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(30,24,41,.7);
+  backdrop-filter:blur(8px);
+  color:var(--text);font-size:1.05rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,border-color .2s,box-shadow .25s;
+}
+.arrow:hover{transform:translateY(-3px);border-color:var(--func);box-shadow:0 0 18px rgba(242,178,99,.4)}
+.arrow:disabled{opacity:.3;cursor:default;transform:none;box-shadow:none;border-color:var(--line)}
+.page-count{min-width:52px;text-align:center;letter-spacing:.08em}
+.page-count b{color:var(--func)}
+
+/* ---------- Hero terminal ---------- */
 .terminal{
+  width:100%;max-width:820px;margin:0 auto;
   background:rgba(18,14,26,.82);
   backdrop-filter:blur(8px);
   border:1px solid var(--line);
   border-radius:var(--radius);
   overflow:hidden;
-  box-shadow:
-    0 30px 80px rgba(0,0,0,.6),
-    0 0 0 1px rgba(242,178,99,.06),
-    0 0 60px rgba(201,165,255,.08);
+  box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 0 1px rgba(242,178,99,.06),0 0 60px rgba(201,165,255,.08);
   transform-style:preserve-3d;
   transition:transform .25s ease-out;
   animation:heroFloat 7s ease-in-out infinite;
@@ -98,26 +152,20 @@ header{padding:84px 0 64px;perspective:1200px}
   0%,100%{transform:translateY(0) rotateX(0deg)}
   50%{transform:translateY(-10px) rotateX(1.2deg)}
 }
-.term-bar{
-  display:flex;align-items:center;gap:8px;
-  padding:12px 16px;border-bottom:1px solid var(--line);
-  background:rgba(26,20,38,.9);
-}
-.dot{width:11px;height:11px;border-radius:50%}
-.dot:nth-child(1){background:#ff5f57}
-.dot:nth-child(2){background:#febc2e}
-.dot:nth-child(3){background:#28c840}
+.term-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line);background:rgba(26,20,38,.9)}
+.tdot{width:11px;height:11px;border-radius:50%}
+.tdot:nth-child(1){background:#ff5f57}
+.tdot:nth-child(2){background:#febc2e}
+.tdot:nth-child(3){background:#28c840}
 .term-title{margin-left:auto;font-family:"IBM Plex Mono",monospace;font-size:.75rem;color:var(--muted)}
 .term-body{padding:28px 28px 32px;font-family:"IBM Plex Mono",monospace;font-size:.92rem}
 .term-body .prompt{color:var(--string)}
 .term-body .cmd{color:var(--text)}
 .term-out{margin-top:18px}
 .hero-name{
-  font-family:"Sora",sans-serif;
-  font-weight:800;
+  font-family:"Sora",sans-serif;font-weight:800;
   font-size:clamp(2.2rem,6vw,3.7rem);
-  letter-spacing:-.02em;
-  line-height:1.08;
+  letter-spacing:-.02em;line-height:1.08;
   background:linear-gradient(100deg,#fff 15%,var(--func) 45%,var(--keyword) 75%,var(--number) 100%);
   -webkit-background-clip:text;background-clip:text;
   -webkit-text-fill-color:transparent;color:transparent;
@@ -132,39 +180,19 @@ header{padding:84px 0 64px;perspective:1200px}
   display:inline-block;padding:11px 22px;border-radius:10px;
   font-size:.9rem;font-weight:600;text-decoration:none;
   transition:transform .18s,box-shadow .25s,background .2s;
-  font-family:"IBM Plex Sans",sans-serif;
+  font-family:"IBM Plex Sans",sans-serif;cursor:pointer;border:none;
 }
 .btn-primary{background:linear-gradient(120deg,var(--func),#e89040);color:#170f08;box-shadow:0 6px 24px rgba(242,178,99,.35)}
 .btn-primary:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 12px 34px rgba(242,178,99,.5)}
 .btn-ghost{border:1px solid var(--line);color:var(--text);background:rgba(30,24,41,.5)}
 .btn-ghost:hover{background:var(--panel-2);transform:translateY(-3px) scale(1.03);box-shadow:0 10px 26px rgba(0,0,0,.4)}
 
-/* ---------- Sections + scroll reveal ---------- */
-section{padding:64px 0;perspective:1000px}
-.reveal{
-  opacity:0;
-  transform:translateY(48px) rotateX(8deg);
-  transform-origin:center top;
-  transition:opacity .7s ease,transform .7s ease;
-}
-.reveal.in{opacity:1;transform:translateY(0) rotateX(0)}
-.sec-label{
-  font-family:"IBM Plex Mono",monospace;
-  font-size:.8rem;color:var(--string);
-  margin-bottom:8px;letter-spacing:.06em;
-  text-shadow:0 0 16px rgba(131,217,200,.5);
-}
-h2{
-  font-family:"Sora",sans-serif;font-weight:700;
-  font-size:1.8rem;letter-spacing:-.01em;margin-bottom:30px;color:#fff;
-}
+/* ---------- Section headings ---------- */
+.sec-label{font-family:"IBM Plex Mono",monospace;font-size:.8rem;color:var(--string);margin-bottom:8px;letter-spacing:.06em;text-shadow:0 0 16px rgba(131,217,200,.5)}
+h2{font-family:"Sora",sans-serif;font-weight:700;font-size:1.8rem;letter-spacing:-.01em;margin-bottom:30px;color:#fff}
 
-/* ---------- 3D tilt cards (shared) ---------- */
-.tilt{
-  transform-style:preserve-3d;
-  transition:transform .2s ease-out,border-color .25s,box-shadow .3s;
-  will-change:transform;
-}
+/* ---------- 3D tilt cards ---------- */
+.tilt{transform-style:preserve-3d;transition:transform .2s ease-out,border-color .25s,box-shadow .3s;will-change:transform}
 .tilt:hover{box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 40px rgba(242,178,99,.1)}
 .tilt > *{transform:translateZ(24px)}
 
@@ -184,11 +212,7 @@ h2{
 
 /* ---------- Projects ---------- */
 .proj-grid{display:grid;gap:20px}
-.proj{
-  background:var(--panel);backdrop-filter:blur(8px);
-  border:1px solid var(--line);
-  border-radius:var(--radius);padding:28px;
-}
+.proj{background:var(--panel);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:var(--radius);padding:28px}
 .proj:hover{border-color:var(--func)}
 .proj-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .proj h3{font-family:"Sora",sans-serif;font-size:1.2rem;font-weight:600;color:#fff}
@@ -235,20 +259,22 @@ h2{
 }
 .contact-card p{color:var(--muted);max-width:48ch;margin:8px auto 24px}
 .contact-links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
-
-footer{border-top:1px solid rgba(59,49,83,.6);padding:28px 0;text-align:center;color:var(--muted);font-size:.82rem;font-family:"IBM Plex Mono",monospace}
+.page-footer{margin-top:40px;text-align:center;color:var(--muted);font-size:.82rem;font-family:"IBM Plex Mono",monospace}
 
 @media (prefers-reduced-motion: reduce){
   .cursor{animation:none}
   .terminal{animation:none}
-  .reveal{opacity:1;transform:none;transition:none}
-  *{transition:none!important}
+  .page{transition:opacity .3s ease}
+  .page,.page.behind{transform:none}
+  *{transition-duration:.01ms!important}
 }
 @media (max-width:640px){
   .nav-links{display:none}
   .term-body{padding:20px 18px 24px}
-  section{padding:48px 0}
+  .dots{right:10px;gap:10px}
+  .pdot{width:9px;height:9px}
   .glow-orb{opacity:.25}
+  .page-scroll{padding:28px 0 96px}
 }
 </style>
 </head>
@@ -260,77 +286,100 @@ footer{border-top:1px solid rgba(59,49,83,.6);padding:28px 0;text-align:center;c
 
 <nav>
   <div class="wrap nav-inner">
-    <a class="logo" href="#top"><span>&gt;&gt;&gt;</span> <span id="nav-name"></span></a>
+    <a class="logo" data-page="0"><span>&gt;&gt;&gt;</span> <span id="nav-name"></span></a>
     <div class="nav-links">
-      <a href="#skills">Skills</a>
-      <a href="#projects">Projects</a>
-      <a href="#experience">Experience</a>
-      <a href="#certs">Certifications</a>
-      <a href="#contact">Contact</a>
+      <a data-page="1">Skills</a>
+      <a data-page="2">Projects</a>
+      <a data-page="3">Experience</a>
+      <a data-page="4">Certifications</a>
+      <a data-page="5">Contact</a>
     </div>
   </div>
 </nav>
 
-<header id="top">
-  <div class="wrap">
-    <div class="terminal" id="hero-terminal">
-      <div class="term-bar">
-        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="term-title" id="term-title"></span>
-      </div>
-      <div class="term-body">
-        <div><span class="prompt">&gt;&gt;&gt;</span> <span class="cmd" id="typed-cmd"></span><span class="cursor" id="type-cursor"></span></div>
-        <div class="term-out" id="term-out" style="opacity:0;transition:opacity .5s">
-          <div class="hero-name" id="hero-name"></div>
-          <div class="hero-role" id="hero-role"></div>
-          <p class="hero-tag" id="hero-tag"></p>
-          <div class="hero-actions" id="hero-actions"></div>
+<div class="stage" id="stage">
+
+  <!-- PAGE 0 · HOME -->
+  <section class="page page-center" id="p-home">
+    <div class="page-scroll"><div class="wrap" style="width:100%">
+      <div class="terminal" id="hero-terminal">
+        <div class="term-bar">
+          <span class="tdot"></span><span class="tdot"></span><span class="tdot"></span>
+          <span class="term-title" id="term-title"></span>
+        </div>
+        <div class="term-body">
+          <div><span class="prompt">&gt;&gt;&gt;</span> <span class="cmd" id="typed-cmd"></span><span class="cursor" id="type-cursor"></span></div>
+          <div class="term-out" id="term-out" style="opacity:0;transition:opacity .5s">
+            <div class="hero-name" id="hero-name"></div>
+            <div class="hero-role" id="hero-role"></div>
+            <p class="hero-tag" id="hero-tag"></p>
+            <div class="hero-actions" id="hero-actions"></div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-</header>
-
-<main class="wrap">
-
-  <section id="skills" class="reveal">
-    <div class="sec-label"># skills</div>
-    <h2>What I work with</h2>
-    <div class="skill-groups" id="skills-container"></div>
+    </div></div>
   </section>
 
-  <section id="projects" class="reveal">
-    <div class="sec-label"># projects</div>
-    <h2>Things I've built</h2>
-    <div class="proj-grid" id="projects-container"></div>
+  <!-- PAGE 1 · SKILLS -->
+  <section class="page" id="p-skills">
+    <div class="page-scroll"><div class="wrap">
+      <div class="sec-label"># skills</div>
+      <h2>What I work with</h2>
+      <div class="skill-groups" id="skills-container"></div>
+    </div></div>
   </section>
 
-  <section id="experience" class="reveal">
-    <div class="sec-label"># experience &amp; education</div>
-    <h2>Where I've been</h2>
-    <div class="timeline" id="timeline-container"></div>
+  <!-- PAGE 2 · PROJECTS -->
+  <section class="page" id="p-projects">
+    <div class="page-scroll"><div class="wrap">
+      <div class="sec-label"># projects</div>
+      <h2>Things I've built</h2>
+      <div class="proj-grid" id="projects-container"></div>
+    </div></div>
   </section>
 
-  <section id="certs" class="reveal">
-    <div class="sec-label"># certifications</div>
-    <h2>Certificates &amp; trainings</h2>
-    <div class="cert-grid" id="certs-container"></div>
+  <!-- PAGE 3 · EXPERIENCE -->
+  <section class="page" id="p-experience">
+    <div class="page-scroll"><div class="wrap">
+      <div class="sec-label"># experience &amp; education</div>
+      <h2>Where I've been</h2>
+      <div class="timeline" id="timeline-container"></div>
+    </div></div>
   </section>
 
-  <section id="contact" class="reveal">
-    <div class="sec-label"># contact</div>
-    <h2>Get in touch</h2>
-    <div class="contact-card">
-      <p id="contact-text"></p>
-      <div class="contact-links" id="contact-links"></div>
-    </div>
+  <!-- PAGE 4 · CERTIFICATIONS -->
+  <section class="page" id="p-certs">
+    <div class="page-scroll"><div class="wrap">
+      <div class="sec-label"># certifications</div>
+      <h2>Certificates &amp; trainings</h2>
+      <div class="cert-grid" id="certs-container"></div>
+    </div></div>
   </section>
 
-</main>
+  <!-- PAGE 5 · CONTACT -->
+  <section class="page" id="p-contact">
+    <div class="page-scroll"><div class="wrap">
+      <div class="sec-label"># contact</div>
+      <h2>Get in touch</h2>
+      <div class="contact-card">
+        <p id="contact-text"></p>
+        <div class="contact-links" id="contact-links"></div>
+      </div>
+      <div class="page-footer" id="footer-text"></div>
+    </div></div>
+  </section>
 
-<footer>
-  <div class="wrap" id="footer-text"></div>
-</footer>
+</div>
+
+<!-- Side dots -->
+<div class="dots" id="dots" role="tablist" aria-label="Pages"></div>
+
+<!-- Prev / Next -->
+<div class="pager">
+  <button class="arrow" id="prevBtn" aria-label="Previous page">‹</button>
+  <span class="page-count"><b id="cur-page">01</b> / <span id="tot-page">06</span></span>
+  <button class="arrow" id="nextBtn" aria-label="Next page">›</button>
+</div>
 
 <script>
 /* ================================================================
@@ -431,6 +480,7 @@ const CONTENT = {
 const $ = id => document.getElementById(id);
 const firstName = CONTENT.name.split(" ")[0].toLowerCase();
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isTouch = matchMedia("(hover: none)").matches;
 
 $("nav-name").textContent = firstName;
 $("term-title").textContent = firstName + "@portfolio — python3";
@@ -444,13 +494,16 @@ document.title = CONTENT.name + " — Portfolio";
 // Hero buttons
 const hasGithub = CONTENT.github && !CONTENT.github.includes("YOUR-GITHUB");
 const actions = [
-  ["View projects", "#projects", "btn-primary"],
+  ["View projects", "page:2", "btn-primary"],
   ["Email me", "mailto:" + CONTENT.email, "btn-ghost"]
 ];
 if (hasGithub) actions.push(["GitHub", CONTENT.github, "btn-ghost"]);
 if (CONTENT.resumeLink) actions.push(["Resume", CONTENT.resumeLink, "btn-ghost"]);
 $("hero-actions").innerHTML = actions.map(([t, h, c]) =>
-  `<a class="btn ${c}" href="${h}" ${h.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}>${t}</a>`).join("");
+  h.startsWith("page:")
+    ? `<a class="btn ${c}" data-page="${h.slice(5)}">${t}</a>`
+    : `<a class="btn ${c}" href="${h}" ${h.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}>${t}</a>`
+).join("");
 
 // Skills
 $("skills-container").innerHTML = CONTENT.skills.map(s => `
@@ -514,14 +567,108 @@ if (reduceMotion) {
   setTimeout(type, 400);
 }
 
-/* ---------- Scroll reveal (3D rotate-in) ---------- */
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
-}, { threshold: 0.12 });
-document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+/* ================================================================
+   3D PAGE NAVIGATION
+   ================================================================ */
+const pages = [...document.querySelectorAll(".page")];
+const dotsBox = $("dots");
+let cur = 0, locking = false;
+
+pages.forEach((p, i) => {
+  const d = document.createElement("button");
+  d.className = "pdot" + (i === 0 ? " on" : "");
+  d.setAttribute("aria-label", "Go to page " + (i + 1));
+  d.addEventListener("click", () => go(i));
+  dotsBox.appendChild(d);
+});
+const pdots = [...dotsBox.children];
+$("tot-page").textContent = String(pages.length).padStart(2, "0");
+
+function paint() {
+  pages.forEach((p, i) => {
+    p.classList.toggle("active", i === cur);
+    p.classList.toggle("behind", i < cur);
+  });
+  pdots.forEach((d, i) => d.classList.toggle("on", i === cur));
+  document.querySelectorAll("[data-page]").forEach(a => {
+    a.classList.toggle("current", +a.dataset.page === cur);
+  });
+  $("cur-page").textContent = String(cur + 1).padStart(2, "0");
+  $("prevBtn").disabled = cur === 0;
+  $("nextBtn").disabled = cur === pages.length - 1;
+}
+function go(i) {
+  if (i < 0 || i >= pages.length || i === cur || locking) return;
+  cur = i;
+  locking = true;
+  paint();
+  pages[cur].querySelector(".page-scroll").scrollTop = 0;
+  setTimeout(() => { locking = false; }, reduceMotion ? 150 : 900);
+}
+paint();
+pages[0].classList.add("active");
+
+// Nav + button clicks
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-page]");
+  if (t) go(+t.dataset.page);
+});
+
+// Arrows
+$("prevBtn").addEventListener("click", () => go(cur - 1));
+$("nextBtn").addEventListener("click", () => go(cur + 1));
+
+// Keyboard
+document.addEventListener("keydown", e => {
+  if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(e.key)) { e.preventDefault(); edgeNext(1); }
+  if (["ArrowLeft", "ArrowUp", "PageUp"].includes(e.key)) { e.preventDefault(); edgeNext(-1); }
+});
+
+// Only flip when the inner page is scrolled to its edge
+function atEdge(dir) {
+  const sc = pages[cur].querySelector(".page-scroll");
+  if (dir > 0) return sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4;
+  return sc.scrollTop <= 4;
+}
+function edgeNext(dir) {
+  if (atEdge(dir)) go(cur + dir);
+  else {
+    const sc = pages[cur].querySelector(".page-scroll");
+    sc.scrollBy({ top: dir * sc.clientHeight * 0.8, behavior: "smooth" });
+  }
+}
+
+// Wheel
+let wheelLock = false;
+document.addEventListener("wheel", e => {
+  if (locking) return;
+  const dir = e.deltaY > 0 ? 1 : -1;
+  if (atEdge(dir)) {
+    e.preventDefault();
+    if (wheelLock) return;
+    wheelLock = true;
+    go(cur + dir);
+    setTimeout(() => { wheelLock = false; }, 1000);
+  }
+}, { passive: false });
+
+// Touch swipe (vertical)
+let tsY = null, tsX = null;
+document.addEventListener("touchstart", e => {
+  tsY = e.touches[0].clientY; tsX = e.touches[0].clientX;
+}, { passive: true });
+document.addEventListener("touchend", e => {
+  if (tsY === null) return;
+  const dy = tsY - e.changedTouches[0].clientY;
+  const dx = tsX - e.changedTouches[0].clientX;
+  if (Math.abs(dy) > 70 && Math.abs(dy) > Math.abs(dx)) {
+    const dir = dy > 0 ? 1 : -1;
+    if (atEdge(dir)) go(cur + dir);
+  }
+  tsY = tsX = null;
+}, { passive: true });
 
 /* ---------- 3D tilt on hover ---------- */
-const isTouch = matchMedia("(hover: none)").matches;
 if (!reduceMotion && !isTouch) {
   document.querySelectorAll(".tilt").forEach(card => {
     card.addEventListener("mousemove", e => {
@@ -533,7 +680,6 @@ if (!reduceMotion && !isTouch) {
     card.addEventListener("mouseleave", () => { card.style.transform = ""; });
   });
 
-  // Hero terminal gentle mouse parallax
   const term = $("hero-terminal");
   document.addEventListener("mousemove", e => {
     const px = e.clientX / innerWidth - 0.5;
@@ -548,8 +694,8 @@ if (!reduceMotion && !isTouch) {
   const ctx = canvas.getContext("2d");
   let W, H, DPR;
   const mobile = matchMedia("(max-width: 640px)").matches;
-  const N = reduceMotion ? 0 : (mobile ? 42 : 90);   // node count
-  const R = 340;                                      // sphere-ish radius
+  const N = reduceMotion ? 0 : (mobile ? 42 : 90);
+  const R = 340;
   const LINK_DIST = mobile ? 120 : 150;
   const COLORS = ["242,178,99", "131,217,200", "241,147,174", "201,165,255"];
 
@@ -563,7 +709,6 @@ if (!reduceMotion && !isTouch) {
   resize();
   addEventListener("resize", resize);
 
-  // Random 3D points
   const pts = Array.from({ length: N }, () => {
     const th = Math.random() * Math.PI * 2;
     const ph = Math.acos(2 * Math.random() - 1);
@@ -595,16 +740,14 @@ if (!reduceMotion && !isTouch) {
     const proj = [];
 
     for (const p of pts) {
-      // rotate around Y then X
       let x = p.x * cy + p.z * sy;
       let z = -p.x * sy + p.z * cy;
       let y = p.y * cx2 - z * sx2;
       z = p.y * sx2 + z * cx2;
       const sc = FOV / (FOV + z + R);
-      proj.push({ sx: W / 2 + x * sc, sy: H / 2 + y * sc, sc, z, c: p.c, s: p.s });
+      proj.push({ sx: W / 2 + x * sc, sy: H / 2 + y * sc, sc, c: p.c, s: p.s });
     }
 
-    // edges
     ctx.lineWidth = 1;
     for (let i = 0; i < proj.length; i++) {
       for (let j = i + 1; j < proj.length; j++) {
@@ -619,7 +762,6 @@ if (!reduceMotion && !isTouch) {
         }
       }
     }
-    // nodes
     for (const p of proj) {
       const alpha = 0.35 + p.sc * 0.5;
       ctx.fillStyle = `rgba(${p.c},${Math.min(alpha, 0.95).toFixed(3)})`;
